@@ -1,4 +1,3 @@
-
 import os
 
 import RomaniaMap
@@ -78,7 +77,7 @@ def main():
         # create simple problem solving agent
         spsa = SimpleProblemSolvingAgent()
         # collect search results for greedy and astar search
-        greedy_search_results = spsa.best_graph_first_search(two_cities, f=1)
+        greedy_search_results = spsa.best_graph_first_search(two_cities[0], two_cities[1])
         astar_search_results = spsa.astar_search(two_cities, h=1)
         # print greedy search results
         print("Greedy Best-First Search")
@@ -115,4 +114,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
