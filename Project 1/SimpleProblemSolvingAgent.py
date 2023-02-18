@@ -1,3 +1,5 @@
+import heapq
+from RomaniaMap import get_romania_map
 
 
 class SimpleProblemSolvingAgent:
@@ -39,16 +41,31 @@ class SimpleProblemSolvingAgent:
 
     # -- Implementation Below -- #
 
-    def best_graph_first_search(self, problem, f):
-        total_cost = 1
-        intermediate_cities = ('int_city_1', 'int_city_2', '...', 'int_city_n')
-        search_results = (total_cost, intermediate_cities)
-        return search_results
+    def euclidean(self, node1, node2):
+        lat, long = node1
+        lat2, long2 = node2
+        return ((lat - lat2) ** 2 + (long2 - long2) ** 2) ** 0.5
+
+    def best_graph_first_search(self, start, destination):
+        traveled_cities = []
+        city_check = set()
+        path = [(0, start)]
+
+        while path:
+            (cost, intermediate_city) = heapq.heappop(path)
+            if intermediate_city == destination:
+                traveled_cities.append(intermediate_city)
+                return traveled_cities
+            city_check.add(intermediate_city)
+            traveled_cities.append(intermediate_city)
+            for adj_city, distance in get_romania_map():
+                if adj_city not in traveled_cities:
+                    cost = self.euclidean(adj_city,destination)
+                    heapq.heappush(path, (cost, adj_city))
+        return None
 
     def astar_search(self, problem, h):
         total_cost = 1
         intermediate_cities = ('int_city_1', 'int_city_2', '...', 'int_city_n')
         search_results = (total_cost, intermediate_cities)
         return search_results
-
-
