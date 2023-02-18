@@ -50,18 +50,28 @@ class SimpleProblemSolvingAgent:
         traveled_cities = []
         city_check = set()
         path = [(0, start)]
-
+        
+        # Main loop
         while path:
-            (cost, intermediate_city) = heapq.heappop(path)
+            # Get city with lowest total cost
+            (total_cost, intermediate_city) = heapq.heappop(path)
             if intermediate_city == destination:
                 traveled_cities.append(intermediate_city)
                 return traveled_cities
+            
+            # Add city to visited cities
             city_check.add(intermediate_city)
             traveled_cities.append(intermediate_city)
-            for adj_city, distance in get_romania_map():
+            print(get_romania_map())
+            for adj_city, distance in get_romania_map()[intermediate_city].items():
                 if adj_city not in traveled_cities:
-                    cost = self.euclidean(adj_city,destination)
-                    heapq.heappush(path, (cost, adj_city))
+                    total_cost = self.euclidean(adj_city,destination)
+                    
+                    # Add adjacent city to path
+                    heapq.heappush(path, (total_cost, adj_city))
+                    print(path, total_cost)
+                    
+        # If no path is found, return None
         return None
 
     def astar_search(self, problem, h):
