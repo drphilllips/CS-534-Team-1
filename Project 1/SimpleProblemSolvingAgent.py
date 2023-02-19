@@ -46,9 +46,9 @@ class SimpleProblemSolvingAgent:
     # Find distance between two cities using the Euclidean distance formula
     # Parameters: self, first city, second city
     # Returns the distance in the path between the two cities
-    def euclidean(self, node1, node2):
-        lat, long = node1
-        lat2, long2 = node2
+    def euclidean(self, city1, city2):
+        lat, long = city1
+        lat2, long2 = city2
         return sqrt((lat2 - lat) ** 2 + (long2 - long) ** 2)
 
     # Creates the search algorithm for the best greedy first search
