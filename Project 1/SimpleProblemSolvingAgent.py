@@ -100,12 +100,14 @@ class SimpleProblemSolvingAgent:
         search_results = []  # [total cost, intermediate cities]
         cities_visited = {}
         cities_to_visit = {}
+        cities_parents = {}
         start = start_end_cities[0]
         end = start_end_cities[1]
         current_city = start
         cities_to_visit[start] = [0, 0, 0]  # g,h,f where f=g+h
 
         while cities_to_visit:
+            # select current node from cities_to_visit based on lowest f cost
             least_current_costs = [10000, 10000, 10000]
             for city in cities_to_visit:
                 if cities_to_visit[city][2] < least_current_costs[2]:
@@ -114,12 +116,26 @@ class SimpleProblemSolvingAgent:
             cities_to_visit.pop(current_city)
             cities_visited[current_city] = least_current_costs
 
+            # if current_city is end goal, rebuild path and break to return
             if current_city == end:
-                print(cities_visited)
+                path = []
+                path_cost = 0
+                path_city = current_city
+                while cities_parents[path_city] != path_city:
+                    path.append(path_city)
+                    path_cost = path_cost + cities_visited[path_city][0]
+                    path_city = cities_parents[path_city]
+                    if path_city == start:
+                        break
+                path.append(start)
+                path.reverse()
+                search_results = [path_cost, path]
                 break
 
+            # iterate through child cities of current_city
             child_cities = self.map.get(current_city)
             for child_city in child_cities:
+                # continue if child_city is already visited
                 if child_city in cities_visited:
                     continue
                 child_city_cost = self.map.get(current_city)[child_city] + \
@@ -128,6 +144,8 @@ class SimpleProblemSolvingAgent:
                 child_city_heuristic = self.euclidean(self.map.locations[child_city],
                                                       self.map.locations[end])
                 child_city_total_cost = child_city_cost + child_city_heuristic
+                # if child_city is in cities_to_visit compare g cost to those already
+                # in the cities_to_visit, if it's higher than all, don't add
                 if child_city in cities_to_visit:
                     prev_max_cost = 0
                     for prev_city in cities_to_visit:
@@ -135,6 +153,7 @@ class SimpleProblemSolvingAgent:
                             prev_max_cost = cities_to_visit[prev_city][0]
                     if child_city_cost > prev_max_cost:
                         continue
+                cities_parents[child_city] = current_city
                 cities_to_visit[child_city] = [child_city_cost, child_city_heuristic,
                                                child_city_total_cost]
         return search_results

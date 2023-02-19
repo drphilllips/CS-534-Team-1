@@ -70,7 +70,7 @@ def main():
     Romania Map provided
     """
     # prompt user for continuous run
-    greedy_search = False
+    greedy_search = True
     astar_search = True
     best_path_again = True
     while best_path_again:
