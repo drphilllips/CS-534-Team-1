@@ -70,6 +70,8 @@ def main():
     Romania Map provided
     """
     # prompt user for continuous run
+    greedy_search = False
+    astar_search = True
     best_path_again = True
     while best_path_again:
         # prompt user for two cities
@@ -77,24 +79,26 @@ def main():
         # create simple problem solving agent
         spsa = SimpleProblemSolvingAgent()
         # collect search results for greedy and astar search
-        greedy_search_results = spsa.best_graph_first_search(two_cities[0], two_cities[1])
-        astar_search_results = spsa.astar_search(two_cities, h=1)
-        # print greedy search results
-        print("Greedy Best-First Search")
-        greedy_total_cost = greedy_search_results[0]
-        greedy_intermediate_cities = greedy_search_results[1]
-        print("* Total Cost: " + str(greedy_total_cost))
-        print("* Intermediate Cities: ")
-        for greedy_intermediate_city in greedy_intermediate_cities:
-            print("* - " + greedy_intermediate_city)
+        if greedy_search:
+            # print greedy search results
+            print("Greedy Best-First Search")
+            greedy_search_results = spsa.best_graph_first_search(two_cities[0], two_cities[1])
+            greedy_total_cost = greedy_search_results[0]
+            greedy_intermediate_cities = greedy_search_results[1]
+            print("* Total Cost: " + str(greedy_total_cost))
+            print("* Intermediate Cities: ")
+            for greedy_intermediate_city in greedy_intermediate_cities:
+                print("* - " + greedy_intermediate_city)
         # print astar search results
-        print("Astar Search")
-        astar_total_cost = astar_search_results[0]
-        astar_intermediate_cities = astar_search_results[1]
-        print("* Total Cost: " + str(astar_total_cost))
-        print("* Intermediate Cities: ")
-        for astar_intermediate_city in astar_intermediate_cities:
-            print("* - " + astar_intermediate_city)
+        if astar_search:
+            print("Astar Search")
+            astar_search_results = spsa.astar_search(two_cities)
+            astar_total_cost = astar_search_results[0]
+            astar_intermediate_cities = astar_search_results[1]
+            print("* Total Cost: " + str(astar_total_cost))
+            print("* Intermediate Cities: ")
+            for astar_intermediate_city in astar_intermediate_cities:
+                print("* - " + astar_intermediate_city)
         # ask user if they would like to find the best path
         # between any two cities again
         invalid_yes_no_response = True

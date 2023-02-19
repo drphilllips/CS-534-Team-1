@@ -14,6 +14,7 @@ class SimpleProblemSolvingAgent:
         to get to a particular state from the initial state(root)."""
         self.state = initial_state
         self.seq = []
+        self.map = get_romania_map()
 
     def __call__(self, percept):
         """[Figure 3.1] Formulate a goal and problem, then
@@ -74,8 +75,64 @@ class SimpleProblemSolvingAgent:
         # If no path is found, return None
         return None
 
-    def astar_search(self, problem, h):
-        total_cost = 1
-        intermediate_cities = ('int_city_1', 'int_city_2', '...', 'int_city_n')
-        search_results = (total_cost, intermediate_cities)
+    def astar_search(self, start_end_cities):
+        search_results = []  # [total cost, intermediate cities]
+        cities_visited = {}
+        cities_to_visit = {}
+        start = start_end_cities[0]
+        end = start_end_cities[1]
+        current_city = start
+        cities_to_visit[start] = [0, 0, 0]  # g,h,f where f=g+h
+
+        while cities_to_visit:
+            least_current_costs = [10000, 10000, 10000]
+            for city in cities_to_visit:
+                if cities_to_visit[city][2] < least_current_costs[2]:
+                    current_city = city
+                    least_current_costs = cities_to_visit[city]
+            cities_to_visit.pop(current_city)
+            cities_visited[current_city] = least_current_costs
+
+            neighbor_cities = self.map.get(current_city)
+            for next_city in neighbor_cities:
+                next_city_cost = self.map.get(current_city)[next_city]
+                next_city_heuristic = self.euclidean(self.map.locations[next_city],
+                                                     self.map.locations[end])
+                next_city_total_cost = next_city_cost + next_city_heuristic
+                cities_to_visit[next_city] = [next_city_cost, next_city_heuristic,
+                                              next_city_total_cost]
+
+            least_city = ""
+            least_city_costs = [10000, 10000, 10000]
+            for visit in cities_to_visit:
+                if cities_to_visit[visit][2] < least_city_costs[2]:
+                    least_city = visit
+                    least_city_costs = cities_to_visit[visit]
+            current_city = least_city
+            cities_to_visit.pop(current_city)
+            cities_visited[current_city] = least_city_costs
+
+            if current_city == end:
+                print(cities_visited)
+                break
+
+            child_cities = self.map.get(current_city)
+            for child_city in child_cities:
+                if child_city in cities_visited:
+                    continue
+                child_city_cost = self.map.get(current_city)[child_city] + \
+                                  self.euclidean(self.map.locations[child_city],
+                                                 self.map.locations[current_city])
+                child_city_heuristic = self.euclidean(self.map.locations[child_city],
+                                                      self.map.locations[end])
+                child_city_total_cost = child_city_cost + child_city_heuristic
+                if child_city in cities_to_visit:
+                    prev_max_cost = 0
+                    for prev_city in cities_to_visit:
+                        if cities_to_visit[prev_city][0] > prev_max_cost:
+                            prev_max_cost = cities_to_visit[prev_city][0]
+                    if child_city_cost > prev_max_cost:
+                        continue
+                cities_to_visit[child_city] = [child_city_cost, child_city_heuristic,
+                                               child_city_total_cost]
         return search_results
