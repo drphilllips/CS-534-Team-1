@@ -104,7 +104,7 @@ class SimpleProblemSolvingAgent:
                 # cost_between_cities = self.euclidean(get_romania_map().locations[traveled_cities[i]],
                 #                                    get_romania_map().locations[traveled_cities[i + 1]])
                 # total_cost_so_far += cost_between_cities
-                print(f"* {traveled_cities[i]} --> {traveled_cities[i + 1]}")
+                print(f"* - {traveled_cities[i]} --> {traveled_cities[i + 1]}")
 
             return traveled_cities
 

@@ -1,6 +1,6 @@
 import os
 
-import RomaniaMap
+from RomaniaMap import get_romania_map
 from SimpleProblemSolvingAgent import SimpleProblemSolvingAgent
 
 
@@ -31,7 +31,7 @@ def in_romania_map(city):
     :return: boolean, whether city is in the map
     """
     # import romania map
-    romania_map = RomaniaMap.get_romania_map()
+    romania_map = get_romania_map()
     # check if the city is within the map nodes
     city_in_romania_map = city in romania_map.nodes()
     # return result
@@ -47,8 +47,8 @@ def prompt_for_two_cities():
     # prompt user until receiving a valid pair of cities
     invalid_cities = True
     while invalid_cities:
-        city1 = "Zerind" #input("Please enter a city from the romania_map: ")
-        city2 = "Iasi" #input("Please enter another city from the romania_map: ")
+        city1 = input("Please enter a city from the romania_map: ")
+        city2 = input("Please enter another city from the romania_map: ")
         # if two cities are different and in romania_map,
         # we have a valid pair of cities
         if city1 != city2 and \
