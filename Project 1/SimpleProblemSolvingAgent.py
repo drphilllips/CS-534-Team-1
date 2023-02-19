@@ -57,41 +57,56 @@ class SimpleProblemSolvingAgent:
     # Prints the path between the two cities and the total cost of the path
     def best_graph_first_search(self, start, destination):
         traveled_cities = []
-        city_check = set()
-        path = [(0, start)]
+        #city_check = set()
+        possible_moves = {}
         total_cost_so_far = 0
+        intermediate_city = start
 
         # Main loop
-        while path:
-            # Get city with lowest total cost
-            (cost, intermediate_city) = heapq.heappop(path)
-            if intermediate_city == destination:
-                traveled_cities.append(intermediate_city)
-                # Prints the search results and total cost of travel
-                print(f"* Path from {start} --> {destination} ")
-                for i in range(len(traveled_cities) - 1):
-                    # Calculate the cost between consecutive cities using euclidean distance
-                    cost_between_cities = self.euclidean(get_romania_map().locations[traveled_cities[i]],
-                                                         get_romania_map().locations[traveled_cities[i + 1]])
-                    total_cost_so_far += cost_between_cities
-                    print(f"* {traveled_cities[i]} --> {traveled_cities[i + 1]}: {cost_between_cities}")
-                print(f"* Total Cost: {total_cost_so_far} \n")
-                return traveled_cities
+
+
+        while intermediate_city != destination:
+
 
             # Add city to visited cities
-            city_check.add(intermediate_city)
             traveled_cities.append(intermediate_city)
 
-            for adj_city, distance in get_romania_map()[intermediate_city].items():
+            for adj_city, distance in get_romania_map().get(intermediate_city).items():
                 if adj_city not in traveled_cities:
-                    total_cost = cost + distance + self.euclidean(get_romania_map().locations[adj_city],
+                    #total_cost = cost + distance +
+                    heuristic = self.euclidean(get_romania_map().locations[adj_city],
                                                            get_romania_map().locations[destination])
                     # Add adjacent city to path
-                    heapq.heappush(path, (total_cost, adj_city))
+                    #heapq.heappush(possible_moves, (distance, heuristic, adj_city))
+                    possible_moves[adj_city] = (heuristic,distance)
 
                     # Update total cost so far
-                    total_cost_so_far = cost + distance
+                    #total_cost_so_far = cost + distance
                     # print(f"* {adj_city}--> {total_cost_so_far}")
+
+            # Get city with lowest total cost
+            min = 100000
+            for key, (val1,val2) in possible_moves.items():
+                if min > val1:
+                    min = val1
+                    chosen = key
+            intermediate_city = chosen
+            total_cost_so_far += possible_moves[intermediate_city][1]
+            possible_moves = {}
+
+        if intermediate_city == destination:
+            traveled_cities.append(intermediate_city)
+            # Prints the search results and total cost of travel
+            print(f"* Total Cost: {total_cost_so_far}")
+            print(f"* Path from {start} --> {destination} ")
+            for i in range(len(traveled_cities) - 1):
+                # Calculate the cost between consecutive cities using euclidean distance
+                # cost_between_cities = self.euclidean(get_romania_map().locations[traveled_cities[i]],
+                #                                    get_romania_map().locations[traveled_cities[i + 1]])
+                # total_cost_so_far += cost_between_cities
+                print(f"* {traveled_cities[i]} --> {traveled_cities[i + 1]}")
+
+            return traveled_cities
 
         # If no path is found, return None
         return None

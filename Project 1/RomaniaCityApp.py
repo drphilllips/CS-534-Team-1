@@ -47,8 +47,8 @@ def prompt_for_two_cities():
     # prompt user until receiving a valid pair of cities
     invalid_cities = True
     while invalid_cities:
-        city1 = input("Please enter a city from the romania_map: ")
-        city2 = input("Please enter another city from the romania_map: ")
+        city1 = "Zerind" #input("Please enter a city from the romania_map: ")
+        city2 = "Iasi" #input("Please enter another city from the romania_map: ")
         # if two cities are different and in romania_map,
         # we have a valid pair of cities
         if city1 != city2 and \
@@ -85,13 +85,13 @@ def main():
             greedy_search_results = spsa.best_graph_first_search(two_cities[0], two_cities[1])
             greedy_total_cost = greedy_search_results[0]
             greedy_intermediate_cities = greedy_search_results[1]
-            print("* Total Cost: " + str(greedy_total_cost))
-            print("* Intermediate Cities: ")
-            for greedy_intermediate_city in greedy_intermediate_cities:
-                print("* - " + greedy_intermediate_city)
+            #print("* Total Cost: " + str(greedy_total_cost))
+            #print("* Intermediate Cities: ")
+            #for greedy_intermediate_city in greedy_intermediate_cities:
+            #    print("* - " + greedy_intermediate_city)
         # print astar search results
         if astar_search:
-            print("Astar Search")
+            print("\nAstar Search")
             astar_search_results = spsa.astar_search(two_cities)
             astar_total_cost = astar_search_results[0]
             astar_intermediate_cities = astar_search_results[1]
