@@ -153,9 +153,7 @@ class SimpleProblemSolvingAgent:
                 # continue if child_city is already visited
                 if child_city in cities_visited:
                     continue
-                child_city_cost = self.map.get(current_city)[child_city] + \
-                                  self.euclidean(self.map.locations[child_city],
-                                                 self.map.locations[current_city])
+                child_city_cost = self.map.get(current_city)[child_city]
                 child_city_heuristic = self.euclidean(self.map.locations[child_city],
                                                       self.map.locations[end])
                 child_city_total_cost = child_city_cost + child_city_heuristic
