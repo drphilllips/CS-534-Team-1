@@ -114,25 +114,6 @@ class SimpleProblemSolvingAgent:
             cities_to_visit.pop(current_city)
             cities_visited[current_city] = least_current_costs
 
-            neighbor_cities = self.map.get(current_city)
-            for next_city in neighbor_cities:
-                next_city_cost = self.map.get(current_city)[next_city]
-                next_city_heuristic = self.euclidean(self.map.locations[next_city],
-                                                     self.map.locations[end])
-                next_city_total_cost = next_city_cost + next_city_heuristic
-                cities_to_visit[next_city] = [next_city_cost, next_city_heuristic,
-                                              next_city_total_cost]
-
-            least_city = ""
-            least_city_costs = [10000, 10000, 10000]
-            for visit in cities_to_visit:
-                if cities_to_visit[visit][2] < least_city_costs[2]:
-                    least_city = visit
-                    least_city_costs = cities_to_visit[visit]
-            current_city = least_city
-            cities_to_visit.pop(current_city)
-            cities_visited[current_city] = least_city_costs
-
             if current_city == end:
                 print(cities_visited)
                 break
