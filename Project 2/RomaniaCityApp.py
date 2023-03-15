@@ -73,6 +73,7 @@ def main():
     greedy_search = True
     astar_search = True
     best_path_again = True
+    simulated_annealing = True
     while best_path_again:
         # prompt user for two cities
         two_cities = prompt_for_two_cities()
@@ -99,6 +100,14 @@ def main():
             print("* Intermediate Cities: ")
             for astar_intermediate_city in astar_intermediate_cities:
                 print("* - " + astar_intermediate_city)
+                
+        # print simulated_annealing search results
+        if simulated_annealing:
+            print("\nSimulated Annealing Search")
+            sim_annealing_results = spsa.simulated_annealing_search(two_cities)
+            print("* Total Cost: " + str(sim_annealing_results))
+            print("* Intermediate Cities: ")
+            
         # ask user if they would like to find the best path
         # between any two cities again
         invalid_yes_no_response = True
