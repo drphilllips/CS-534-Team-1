@@ -170,3 +170,36 @@ class SimpleProblemSolvingAgent:
                 cities_to_visit[child_city] = [child_city_cost, child_city_heuristic,
                                                child_city_total_cost]
         return search_results
+    
+        def exp_schedule(k=20, lam=0.005, limit=100):
+            return lambda t: (k * np.exp(-lam * t) if t < limit else 0)
+
+        def probability(self, p):
+            return random.random() < p
+    
+    
+        def simulated_annealing_search(self, state, schedule=exp_schedule()):
+            cities = []
+            distances = {}
+            curr_city = state[0]
+            for t in range(sys.maxsize):
+                cities.append(curr_city)
+                if len(cities) > 1:
+                    distance, cost = state[1](cities[-2], curr_city)
+                    distances[curr_city] = {"distance": distance, "cost": cost}
+                T = schedule(t)
+                if T == 0:
+                    return {"cities": cities, "distances": distances}
+                neighbors = state[1].actions(curr_city)
+                if not neighbors:
+                    return {"cities": [curr_city], "distances": {"distance": 0, "cost": 0}}
+                next_city = random.choice(neighbors)
+                if next_city is None:
+                    distance, cost = 0, 0
+                else:
+                    distance, cost = state[1](curr_city, next_city)
+                delta_e = state[1].value(next_city) - state[1].value(curr_city)
+                if delta_e > 0 or self.probability(np.exp(delta_e / T)):
+                    curr_city = next_city
+            return {"cities": cities, "distances": distances}
+
