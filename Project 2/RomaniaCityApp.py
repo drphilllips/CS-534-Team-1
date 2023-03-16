@@ -105,8 +105,8 @@ def main():
         if simulated_annealing:
             print("\nSimulated Annealing Search")
             sim_annealing_results = spsa.simulated_annealing_search(two_cities)
-            print("* Total Cost: " + str(sim_annealing_results))
-            print("* Intermediate Cities: ")
+            print("* Total Cost: " + str(sim_annealing_results['Total Cost: ']))
+            print("* Intermediate Cities: \n" + str(sim_annealing_results['Path: ']))
             
         # ask user if they would like to find the best path
         # between any two cities again
