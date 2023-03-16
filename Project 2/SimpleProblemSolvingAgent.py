@@ -178,28 +178,28 @@ class SimpleProblemSolvingAgent:
             return random.random() < p
     
     
-        def simulated_annealing_search(self, state, schedule=exp_schedule()):
-            cities = []
-            distances = {}
-            curr_city = state[0]
-            for t in range(sys.maxsize):
-                cities.append(curr_city)
-                if len(cities) > 1:
-                    distance, cost = state[1](cities[-2], curr_city)
-                    distances[curr_city] = {"distance": distance, "cost": cost}
-                T = schedule(t)
-                if T == 0:
-                    return {"cities": cities, "distances": distances}
-                neighbors = state[1].actions(curr_city)
-                if not neighbors:
-                    return {"cities": [curr_city], "distances": {"distance": 0, "cost": 0}}
-                next_city = random.choice(neighbors)
-                if next_city is None:
-                    distance, cost = 0, 0
-                else:
-                    distance, cost = state[1](curr_city, next_city)
-                delta_e = state[1].value(next_city) - state[1].value(curr_city)
-                if delta_e > 0 or self.probability(np.exp(delta_e / T)):
-                    curr_city = next_city
-            return {"cities": cities, "distances": distances}
+           def simulated_annealing_search(self, cities, schedule=exp_schedule()):
+        start_city = cities[0]
+        end_city = cities[1]
+        path = [start_city]
+        distances = {start_city: 0, end_city: 0}
+        curr_city = start_city
+        t=0
 
+        while curr_city != end_city:
+            T = schedule(t)
+            neighbors = [city for city in cities if city != curr_city]
+            if not neighbors:
+                break
+            next_city = random.choice(neighbors)
+            cost = self.euclidean(self.map.locations[curr_city], self.map.locations[next_city])
+            delta_e = cost - distances[curr_city]
+            if delta_e > 0 or np.random.uniform() < np.exp(delta_e / T):
+                curr_city = next_city
+                path.append(curr_city)
+                distances[curr_city] = distances[curr_city] + cost
+        path_str = "\n".join(f"* - {city}" for city in path)
+        return {
+            'Total Cost: ': distances[end_city],
+            'Path: ': path_str + "\n"
+        }
