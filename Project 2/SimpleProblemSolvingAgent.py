@@ -210,28 +210,33 @@ class SimpleProblemSolvingAgent:
     def probability(self, p):
         return random.random() < p
     
-    def simulated_annealing_search(self, cities, schedule=exp_schedule()):
+        def simulated_annealing_search(self, cities, schedule=exp_schedule()):
         start_city = cities[0]
         end_city = cities[1]
         path = [start_city]
         distances = {start_city: 0, end_city: 0}
         curr_city = start_city
-        t=0
+        visited_cities = [start_city]
 
-        while curr_city != end_city:
+        for t in range(sys.maxsize):
             T = schedule(t)
+            if T == 0:
+                break
             neighbors = [city for city in cities if city != curr_city]
             if not neighbors:
                 break
             next_city = random.choice(neighbors)
             cost = self.euclidean(self.map.locations[curr_city], self.map.locations[next_city])
             delta_e = cost - distances[curr_city]
-            if delta_e > 0 or np.random.uniform() < np.exp(delta_e / T):
+            if delta_e > 0 and self.probability(np.exp(delta_e / T)):
                 curr_city = next_city
-                path.append(curr_city)
+                visited_cities.append(curr_city)
                 distances[curr_city] = distances[curr_city] + cost
-        path_str = "\n".join(f"* - {city}" for city in path)
+                path.append(curr_city)
+
+        path_str = "\n".join(f"* - {city}" for city in visited_cities)
         return {
             'Total Cost: ': distances[end_city],
             'Path: ': path_str + "\n"
         }
+
