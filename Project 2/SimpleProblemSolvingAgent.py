@@ -173,9 +173,35 @@ class SimpleProblemSolvingAgent:
 
     def hill_climbing(self, start_end_cities):
         search_results = []
-        # create random solution
-        # get neighbor solutions
-        # find best neighbor solution
+        search_path = []
+        total_cost = 0
+        cities_visited = []
+        current_city = start_end_cities[0]
+        search_path.append(current_city)
+        cities_visited.append(current_city)
+        while True:
+            neighbor_cities = self.map.get(current_city)
+            if not neighbor_cities:
+                break
+            best_neighbor = None
+            best_neighbor_cost = 1000000
+            for neighbor in neighbor_cities:
+                if not best_neighbor:
+                    best_neighbor = neighbor
+                    best_neighbor_cost = neighbor_cities[neighbor]
+                else:
+                    if neighbor_cities[neighbor] < best_neighbor_cost:
+                        best_neighbor = neighbor
+                        best_neighbor_cost = neighbor_cities[neighbor]
+            if best_neighbor not in cities_visited:
+                current_city = best_neighbor
+                search_path.append(current_city)
+                total_cost += best_neighbor_cost
+                cities_visited.append(current_city)
+            else:
+                break
+            print(search_results)
+        search_results = [total_cost, search_path]
         return search_results
 
     def exp_schedule(k=20, lam=0.005, limit=100):

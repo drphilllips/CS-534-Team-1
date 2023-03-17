@@ -70,9 +70,10 @@ def main():
     Romania Map provided
     """
     # prompt user for continuous run
-    greedy_search = True
-    astar_search = True
     best_path_again = True
+    greedy_search = False
+    astar_search = False
+    hill_climb = True
     simulated_annealing = True
     while best_path_again:
         # prompt user for two cities
@@ -100,6 +101,16 @@ def main():
             print("* Intermediate Cities: ")
             for astar_intermediate_city in astar_intermediate_cities:
                 print("* - " + astar_intermediate_city)
+
+        if hill_climb:
+            print("\nHill Climbing Search")
+            hill_climb_results = spsa.hill_climbing(two_cities)
+            hill_climb_total_cost = hill_climb_results[0]
+            hill_climb_intermediate_cities = hill_climb_results[1]
+            print("* Total Cost: " + str(hill_climb_total_cost))
+            print("* Intermediate Cities: ")
+            for hill_climb_intermediate_city in hill_climb_intermediate_cities:
+                print("* - " + hill_climb_intermediate_city)
                 
         # print simulated_annealing search results
         if simulated_annealing:
