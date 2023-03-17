@@ -1,7 +1,7 @@
-import heapq
 from math import sqrt
-
 from RomaniaMap import get_romania_map
+import numpy as np
+import random
 
 
 class SimpleProblemSolvingAgent:
@@ -170,15 +170,21 @@ class SimpleProblemSolvingAgent:
                 cities_to_visit[child_city] = [child_city_cost, child_city_heuristic,
                                                child_city_total_cost]
         return search_results
-    
-        def exp_schedule(k=20, lam=0.005, limit=100):
-            return lambda t: (k * np.exp(-lam * t) if t < limit else 0)
 
-        def probability(self, p):
-            return random.random() < p
+    def hill_climbing(self, start_end_cities):
+        search_results = []
+        # create random solution
+        # get neighbor solutions
+        # find best neighbor solution
+        return search_results
+
+    def exp_schedule(k=20, lam=0.005, limit=100):
+        return lambda t: (k * np.exp(-lam * t) if t < limit else 0)
+
+    def probability(self, p):
+        return random.random() < p
     
-    
-           def simulated_annealing_search(self, cities, schedule=exp_schedule()):
+    def simulated_annealing_search(self, cities, schedule=exp_schedule()):
         start_city = cities[0]
         end_city = cities[1]
         path = [start_city]
