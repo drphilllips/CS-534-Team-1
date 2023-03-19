@@ -1,3 +1,4 @@
+import sys
 from math import sqrt
 from RomaniaMap import get_romania_map
 import numpy as np
@@ -229,7 +230,7 @@ class SimpleProblemSolvingAgent:
             search_results = [total_cost, search_path]
         return search_results
 
-    def exp_schedule(k=20, lam=0.005, limit=100):
+    def exp_schedule(k=20, lam=0.005, limit=1000):
         return lambda t: (k * np.exp(-lam * t) if t < limit else 0)
 
     def probability(self, p):
@@ -239,35 +240,35 @@ class SimpleProblemSolvingAgent:
         start_city = cities[0]
         end_city = cities[1]
         path = [start_city]
-        distances = {start_city: 0, end_city: float('inf')}
+        total_cost = 0
+        distances = {start_city: 0}
         curr_city = start_city
-        t = 0
 
-        while curr_city != end_city:
+        for t in range(0, sys.maxsize):
             T = schedule(t)
-            neighbors = list(get_romania_map().get(curr_city).items())
-            print(neighbors)
-            if not neighbors:
+            if T == 0:
+                print('T is zero')
                 break
-            next_city = random.choice(neighbors)[0]
-
-            # Prints the coordinates of the current city and next city
-            # print(get_romania_map().locations[curr_city])
-            # print(get_romania_map().locations[next_city])
-
+            neighbors = list(get_romania_map().get(curr_city).keys())
+            if not neighbors:
+                print('No neighbors')
+                break
+            next_city = random.choice(neighbors)
+            next_city_cost = get_romania_map().get(curr_city)[next_city]
             cost = self.euclidean(get_romania_map().locations[curr_city], get_romania_map().locations[next_city])
-            delta_e = cost - distances[curr_city]
-            print(delta_e)
-            if delta_e > 0 or self.probability(np.exp(delta_e / T)):
+            delta_e = cost + next_city_cost - distances[curr_city]
+            prob_value = np.exp(delta_e / T)
+            if delta_e > 0 or self.probability(prob_value):
+                distances[str(next_city)] = cost
+                path.append(next_city)
+                total_cost += next_city_cost
                 curr_city = next_city
-                distances[curr_city] = distances[curr_city] + cost
-                # append the updated current city to the path
-            path.append(curr_city)
-            print(path)
+            if curr_city == end_city:
+                break
 
         path_str = "\n".join(f"* - {city}" for city in path)
         return {
-            'Total Cost: ': distances[end_city],
+            'Total Cost: ': total_cost,
             'Path: ': path_str + "\n"
         }
 
