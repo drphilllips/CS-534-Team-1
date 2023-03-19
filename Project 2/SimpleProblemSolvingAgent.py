@@ -180,19 +180,45 @@ class SimpleProblemSolvingAgent:
         search_path.append(current_city)
         cities_visited.append(current_city)
         while True:
+            # Get dict of neighbor cities, sorted by cost (most-least)
+            if current_city == start_end_cities[1]:
+                break
             neighbor_cities = self.map.get(current_city)
+            neighbor_cities_sorted_list = sorted(neighbor_cities.items(),
+                 key=lambda x: x[1], reverse=True)
+            neighbor_cities_dict = dict(neighbor_cities_sorted_list)
             if not neighbor_cities:
                 break
             best_neighbor = None
             best_neighbor_cost = 1000000
-            for neighbor in neighbor_cities:
+            best_neighbor_h = 1000000
+            neighbor_count = 0
+            # Loop through and evaluate neighbors
+            for neighbor in neighbor_cities_dict:
+                # If neighbor is end city, then choose it
+                if neighbor == start_end_cities[1]:
+                    best_neighbor = neighbor
+                    best_neighbor_cost = neighbor_cities_dict[neighbor]
+                    break
+                # If this is the first neighbor, choose it
                 if not best_neighbor:
                     best_neighbor = neighbor
-                    best_neighbor_cost = neighbor_cities[neighbor]
+                    best_neighbor_cost = neighbor_cities_dict[neighbor]
+                    best_neighbor_h = best_neighbor_cost + \
+                          self.euclidean(self.map.locations[list(neighbor_cities_dict.keys())[neighbor_count]],
+                                self.map.locations[start_end_cities[1]])
                 else:
-                    if neighbor_cities[neighbor] < best_neighbor_cost:
+                    # If the neighbor has better h value, choose it
+                    # h value based on cost and euclidean distance from end city
+                    neighbor_h = neighbor_cities[neighbor] + \
+                         self.euclidean(self.map.locations[neighbor],
+                                        self.map.locations[start_end_cities[1]])
+                    if neighbor_h < best_neighbor_h and neighbor not in cities_visited:
                         best_neighbor = neighbor
-                        best_neighbor_cost = neighbor_cities[neighbor]
+                        best_neighbor_cost = neighbor_cities_dict[neighbor]
+                        best_neighbor_h = neighbor_h
+                neighbor_count += 1
+            # If our best neighbor is not visited, move to it
             if best_neighbor not in cities_visited:
                 current_city = best_neighbor
                 search_path.append(current_city)
@@ -200,8 +226,7 @@ class SimpleProblemSolvingAgent:
                 cities_visited.append(current_city)
             else:
                 break
-            print(search_results)
-        search_results = [total_cost, search_path]
+            search_results = [total_cost, search_path]
         return search_results
 
     def exp_schedule(k=20, lam=0.005, limit=100):

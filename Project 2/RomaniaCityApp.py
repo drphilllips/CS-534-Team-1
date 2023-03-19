@@ -71,8 +71,8 @@ def main():
     """
     # prompt user for continuous run
     best_path_again = True
-    greedy_search = False
-    astar_search = False
+    greedy_search = True
+    astar_search = True
     hill_climb = True
     simulated_annealing = True
     while best_path_again:
