@@ -1,7 +1,8 @@
-import heapq
+import sys
 from math import sqrt
-
 from RomaniaMap import get_romania_map
+import numpy as np
+import random
 
 
 class SimpleProblemSolvingAgent:
@@ -57,33 +58,20 @@ class SimpleProblemSolvingAgent:
     # Prints the path between the two cities and the total cost of the path
     def best_graph_first_search(self, start, destination):
         traveled_cities = []
-        #city_check = set()
         possible_moves = {}
         total_cost_so_far = 0
         intermediate_city = start
 
         # Main loop
-
-
         while intermediate_city != destination:
-
-
             # Add city to visited cities
             traveled_cities.append(intermediate_city)
-
             for adj_city, distance in get_romania_map().get(intermediate_city).items():
                 if adj_city not in traveled_cities:
-                    #total_cost = cost + distance +
                     heuristic = self.euclidean(get_romania_map().locations[adj_city],
                                                            get_romania_map().locations[destination])
                     # Add adjacent city to path
-                    #heapq.heappush(possible_moves, (distance, heuristic, adj_city))
                     possible_moves[adj_city] = (heuristic,distance)
-
-                    # Update total cost so far
-                    #total_cost_so_far = cost + distance
-                    # print(f"* {adj_city}--> {total_cost_so_far}")
-
             # Get city with lowest total cost
             min = 100000
             for key, (val1,val2) in possible_moves.items():
@@ -93,23 +81,7 @@ class SimpleProblemSolvingAgent:
             intermediate_city = chosen
             total_cost_so_far += possible_moves[intermediate_city][1]
             possible_moves = {}
-
-        if intermediate_city == destination:
-            traveled_cities.append(intermediate_city)
-            # Prints the search results and total cost of travel
-            print(f"* Total Cost: {total_cost_so_far}")
-            print(f"* Path from {start} --> {destination} ")
-            for i in range(len(traveled_cities) - 1):
-                # Calculate the cost between consecutive cities using euclidean distance
-                # cost_between_cities = self.euclidean(get_romania_map().locations[traveled_cities[i]],
-                #                                    get_romania_map().locations[traveled_cities[i + 1]])
-                # total_cost_so_far += cost_between_cities
-                print(f"* - {traveled_cities[i]} --> {traveled_cities[i + 1]}")
-
-            return traveled_cities
-
-        # If no path is found, return None
-        return None
+        return [total_cost_so_far, traveled_cities]
 
     def astar_search(self, start_end_cities):
         search_results = []  # [total cost, intermediate cities]
@@ -170,3 +142,99 @@ class SimpleProblemSolvingAgent:
                 cities_to_visit[child_city] = [child_city_cost, child_city_heuristic,
                                                child_city_total_cost]
         return search_results
+
+    def hill_climbing(self, start_end_cities):
+        search_results = []
+        search_path = []
+        total_cost = 0
+        cities_visited = []
+        current_city = start_end_cities[0]
+        search_path.append(current_city)
+        cities_visited.append(current_city)
+        while True:
+            # Get dict of neighbor cities, sorted by cost (most-least)
+            if current_city == start_end_cities[1]:
+                break
+            neighbor_cities = self.map.get(current_city)
+            neighbor_cities_sorted_list = sorted(neighbor_cities.items(),
+                 key=lambda x: x[1], reverse=True)
+            neighbor_cities_dict = dict(neighbor_cities_sorted_list)
+            if not neighbor_cities:
+                break
+            best_neighbor = None
+            best_neighbor_cost = 1000000
+            best_neighbor_h = 1000000
+            neighbor_count = 0
+            # Loop through and evaluate neighbors
+            for neighbor in neighbor_cities_dict:
+                # If neighbor is end city, then choose it
+                if neighbor == start_end_cities[1]:
+                    best_neighbor = neighbor
+                    best_neighbor_cost = neighbor_cities_dict[neighbor]
+                    break
+                # If this is the first neighbor, choose it
+                if not best_neighbor:
+                    best_neighbor = neighbor
+                    best_neighbor_cost = neighbor_cities_dict[neighbor]
+                    best_neighbor_h = best_neighbor_cost + \
+                          self.euclidean(self.map.locations[list(neighbor_cities_dict.keys())[neighbor_count]],
+                                self.map.locations[start_end_cities[1]])
+                else:
+                    # If the neighbor has better h value, choose it
+                    # h value based on cost and euclidean distance from end city
+                    neighbor_h = neighbor_cities[neighbor] + \
+                         self.euclidean(self.map.locations[neighbor],
+                                        self.map.locations[start_end_cities[1]])
+                    if neighbor_h < best_neighbor_h and neighbor not in cities_visited:
+                        best_neighbor = neighbor
+                        best_neighbor_cost = neighbor_cities_dict[neighbor]
+                        best_neighbor_h = neighbor_h
+                neighbor_count += 1
+            # If our best neighbor is not visited, move to it
+            if best_neighbor not in cities_visited:
+                current_city = best_neighbor
+                search_path.append(current_city)
+                total_cost += best_neighbor_cost
+                cities_visited.append(current_city)
+            else:
+                break
+            search_results = [total_cost, search_path]
+        return search_results
+
+    def exp_schedule(k=20, lam=0.005, limit=1000):
+        return lambda t: (k * np.exp(-lam * t) if t < limit else 0)
+
+    def probability(self, p):
+        return random.random() < p
+    
+    def simulated_annealing_search(self, cities, schedule=exp_schedule()):
+        start_city = cities[0]
+        end_city = cities[1]
+        path = [start_city]
+        total_cost = 0
+        distances = {start_city: 0}
+        curr_city = start_city
+
+        for t in range(0, sys.maxsize):
+            T = schedule(t)
+            if T == 0:
+                print('T is zero')
+                break
+            neighbors = list(get_romania_map().get(curr_city).keys())
+            if not neighbors:
+                print('No neighbors')
+                break
+            next_city = random.choice(neighbors)
+            next_city_cost = get_romania_map().get(curr_city)[next_city]
+            cost = self.euclidean(get_romania_map().locations[curr_city], get_romania_map().locations[next_city])
+            delta_e = cost + next_city_cost - distances[curr_city]
+            prob_value = np.exp(delta_e / T)
+            if delta_e > 0 or self.probability(prob_value):
+                distances[str(next_city)] = cost
+                path.append(next_city)
+                total_cost += next_city_cost
+                curr_city = next_city
+            if curr_city == end_city:
+                break
+        return [total_cost, path]
+

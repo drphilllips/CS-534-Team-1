@@ -70,9 +70,11 @@ def main():
     Romania Map provided
     """
     # prompt user for continuous run
+    best_path_again = True
     greedy_search = True
     astar_search = True
-    best_path_again = True
+    hill_climb = True
+    simulated_annealing = True
     while best_path_again:
         # prompt user for two cities
         two_cities = prompt_for_two_cities()
@@ -85,10 +87,10 @@ def main():
             greedy_search_results = spsa.best_graph_first_search(two_cities[0], two_cities[1])
             greedy_total_cost = greedy_search_results[0]
             greedy_intermediate_cities = greedy_search_results[1]
-            #print("* Total Cost: " + str(greedy_total_cost))
-            #print("* Intermediate Cities: ")
-            #for greedy_intermediate_city in greedy_intermediate_cities:
-            #    print("* - " + greedy_intermediate_city)
+            print("* Total Cost: " + str(greedy_total_cost))
+            print("* Intermediate Cities: ")
+            for greedy_intermediate_city in greedy_intermediate_cities:
+                print("* - " + greedy_intermediate_city)
         # print astar search results
         if astar_search:
             print("\nAstar Search")
@@ -99,6 +101,28 @@ def main():
             print("* Intermediate Cities: ")
             for astar_intermediate_city in astar_intermediate_cities:
                 print("* - " + astar_intermediate_city)
+
+        if hill_climb:
+            print("\nHill Climbing Search")
+            hill_climb_results = spsa.hill_climbing(two_cities)
+            hill_climb_total_cost = hill_climb_results[0]
+            hill_climb_intermediate_cities = hill_climb_results[1]
+            print("* Total Cost: " + str(hill_climb_total_cost))
+            print("* Intermediate Cities: ")
+            for hill_climb_intermediate_city in hill_climb_intermediate_cities:
+                print("* - " + hill_climb_intermediate_city)
+                
+        # print simulated_annealing search results
+        if simulated_annealing:
+            print("\nSimulated Annealing Search")
+            sim_annealing_results = spsa.simulated_annealing_search(two_cities)
+            sim_annealing_total_cost = sim_annealing_results[0]
+            sim_annealing_intermediate_cities = sim_annealing_results[1]
+            print("* Total Cost: " + str(sim_annealing_total_cost))
+            print("* Intermediate Cities: ")
+            for sim_annealing_intermediate_city in sim_annealing_intermediate_cities:
+                print("* - " + sim_annealing_intermediate_city)
+            
         # ask user if they would like to find the best path
         # between any two cities again
         invalid_yes_no_response = True
