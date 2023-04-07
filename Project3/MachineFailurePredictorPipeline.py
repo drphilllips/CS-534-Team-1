@@ -5,6 +5,9 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
+from sklearn.ensemble import BaggingClassifier
+from sklearn.datasets import make_classification
+from sklearn.ensemble import AdaBoostClassifier
 
 
 def main():
@@ -32,8 +35,8 @@ def main():
     print(y_pred)
 
     svclassifier = SVC(kernel='linear')
-    svclassifier.fit(X_train,y_train)
-    y_pred= svclassifier.predict(X_test)
+    svclassifier.fit(X_train, y_train)
+    y_pred = svclassifier.predict(X_test)
     print(y_pred)
 
     accuracy = accuracy_score(y_test, y_pred)
@@ -41,11 +44,16 @@ def main():
     f1 = f1_score(y_test, y_pred)
     print("F1 Score:", f1)
 
+    X, y = make_classification(n_samples=100, n_features=4, n_informative=2, n_redundant=0,
+                               random_state=0, shuffle=False)
+    clf = BaggingClassifier(estimator=SVC(), n_estimators=10, random_state=0).fit(X, y)
+    clf.predict([[0, 0, 0, 0]])
+
     ml_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Parameters', 'Its F1-score on the 5-fold '
                                                                                        'Cross Validation on Training '
                                                                                        'Data (70%)'])
     print(ml_table)
 
-    
+
 if __name__ == "__main__":
     main()
