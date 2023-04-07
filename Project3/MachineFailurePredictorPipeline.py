@@ -3,8 +3,6 @@ from imblearn.under_sampling import RandomUnderSampler
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
