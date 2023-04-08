@@ -50,10 +50,16 @@ def main():
     f1 = f1_score(y_test, y_pred)
     print("F1 Score:", f1)
 
-    X_class, y_class = make_classification(n_samples=100, n_features=4, n_informative=2, n_redundant=0,
-                               random_state=0, shuffle=False)
-    clf = BaggingClassifier(estimator=SVC(), n_estimators=10, random_state=0).fit(X_class, y_class)
-    clf.predict([[0, 0, 0, 0]])
+    # Bagging Classifier
+    #X_class, y_class = make_classification(n_samples=100, n_features=4, n_informative=2, n_redundant=0,
+    #                           random_state=0, shuffle=False)
+    clf = BaggingClassifier(estimator=None, n_estimators=10, random_state=0).fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+    print("Bagging Classifier")
+    accuracy = accuracy_score(y_test, y_pred)
+    print("Accuracy:", accuracy)
+    f1 = f1_score(y_test, y_pred)
+    print("F1 Score:", f1)
 
     ml_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Parameters', 'Its F1-score on the 5-fold '
                                                                                        'Cross Validation on Training '
