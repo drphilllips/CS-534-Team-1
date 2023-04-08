@@ -53,7 +53,8 @@ def main():
     # Bagging Classifier
     #X_class, y_class = make_classification(n_samples=100, n_features=4, n_informative=2, n_redundant=0,
     #                           random_state=0, shuffle=False)
-    clf = BaggingClassifier(estimator=None, n_estimators=10, random_state=0).fit(X_train, y_train)
+    clf = BaggingClassifier(estimator=None, n_estimators=10, random_state=0)
+    clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     print("Bagging Classifier")
     accuracy = accuracy_score(y_test, y_pred)
