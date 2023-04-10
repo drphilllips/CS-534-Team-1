@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from imblearn.under_sampling import RandomUnderSampler
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
@@ -9,6 +9,7 @@ from sklearn.metrics import f1_score
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import RandomForestClassifier
+
 
 
 def main():
@@ -53,9 +54,14 @@ def main():
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(ai_row, index=[0])], ignore_index=True)
 
     # SV Classifier
-    svclassifier = SVC(kernel='linear')
-    svclassifier.fit(X_train, y_train)
-    y_pred = svclassifier.predict(X_test)
+    #svclassifier = SVC(kernel='linear')
+    #svclassifier.fit(X_train, y_train)
+    #y_pred = svclassifier.predict(X_test)
+    parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
+    svc = SVC()
+    grid = GridSearchCV(svc, parameters)
+    grid.fit(X_train, y_train)
+    y_pred = grid.predict(X_test)
     print("SV Classifier")
     accuracy = accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
