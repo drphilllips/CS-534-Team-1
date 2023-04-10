@@ -37,9 +37,21 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(X_over, np.ravel(y_over), test_size=0.3, random_state=42)
 
     # MLP Classifier
-    clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
+    #clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
+    #clf.fit(X_train, y_train)
+    #y_pred = clf.predict(X_test)
+    parameters = {'solver': ['lbfgs', 'sgd', 'adam'],
+                  'alpha': [0.00001, 0.00005],
+                  'hidden_layer_sizes': [(10, 2), (20, 2)],
+                  'learning_rate': ['constant', 'adaptive'],
+                  'activation': ['tanh', 'relu'],
+                  'random_state': [1],
+                  'early_stopping': [True]}
+    mlp = MLPClassifier(max_iter=5000)
+    grid = GridSearchCV(mlp, parameters, cv=5)
+    grid.fit(X_train, y_train)
+    y_pred = grid.predict(X_test)
+    print(grid.get_params())
     print("MLP Classifier")
     accuracy = accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
@@ -57,11 +69,12 @@ def main():
     #svclassifier = SVC(kernel='linear')
     #svclassifier.fit(X_train, y_train)
     #y_pred = svclassifier.predict(X_test)
-    parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
+    parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 5, 10, 20]}
     svc = SVC()
-    grid = GridSearchCV(svc, parameters)
+    grid = GridSearchCV(svc, parameters, cv=5)
     grid.fit(X_train, y_train)
     y_pred = grid.predict(X_test)
+    print(grid.get_params())
     print("SV Classifier")
     accuracy = accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
