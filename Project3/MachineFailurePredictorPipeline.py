@@ -25,6 +25,7 @@ def main():
     # RandomUnderSample data to get 339 failures and 339 non-failures
     undersample = RandomUnderSampler(sampling_strategy='majority')
     X_over, y_over = undersample.fit_resample(X, y)
+    print([X_over, y_over])
     # ------
     # Step 4: Train-Test Split and 5-Fold Cross-Validation
     # ---
@@ -37,21 +38,17 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(X_over, np.ravel(y_over), test_size=0.3, random_state=42)
 
     # MLP Classifier
-    #clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
-    #clf.fit(X_train, y_train)
-    #y_pred = clf.predict(X_test)
-    parameters = {'solver': ['lbfgs', 'sgd', 'adam'],
-                  'alpha': [0.00001, 0.00005],
-                  'hidden_layer_sizes': [(10, 2), (20, 2)],
+    parameters = {'solver': ['sgd', 'adam'],
+                  'alpha': [0.0001, 0.001, 0.01, 0.1, 0.3, 1.0],
+                  'hidden_layer_sizes': [(5, 2), (10, 2), (20, 2), (50, 2), (100, 2), (200, 2)],
                   'learning_rate': ['constant', 'adaptive'],
                   'activation': ['tanh', 'relu'],
-                  'random_state': [1],
                   'early_stopping': [True]}
-    mlp = MLPClassifier(max_iter=5000)
+    mlp = MLPClassifier(max_iter=500)
     grid = GridSearchCV(mlp, parameters, cv=5)
     grid.fit(X_train, y_train)
     y_pred = grid.predict(X_test)
-    print(grid.get_params())
+    print(grid.best_params_)
     print("MLP Classifier")
     accuracy = accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
@@ -66,9 +63,6 @@ def main():
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(ai_row, index=[0])], ignore_index=True)
 
     # SV Classifier
-    #svclassifier = SVC(kernel='linear')
-    #svclassifier.fit(X_train, y_train)
-    #y_pred = svclassifier.predict(X_test)
     parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 5, 10, 20]}
     svc = SVC()
     grid = GridSearchCV(svc, parameters, cv=5)
