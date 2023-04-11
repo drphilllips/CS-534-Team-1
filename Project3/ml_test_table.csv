@@ -1,0 +1,6 @@
+ML Trained Model,Its Best Set of Parameters,Its F1-score on the 5-fold Cross Validation on Training Data (70%),Its F1-score on the 5-fold Cross Validation on Training Data (30%)
+Artificial Neural Networks,"{'hidden layer sizes': (200, 2), 'activation': 'tanh'}",,0.9587628865979382
+Super Vector Machine,"{'C': 0.1, 'kernel': 'linear'}",,0.9574468085106385
+BaggingClassifier,"{'n_estimators': 20, 'max_samples': 200, 'max_features': 5}",,0.9265536723163843
+AdaBoost,"{'n_estimators': 25, 'learning_rate': 0.1}",,1.0
+Random Forest,"{'n_estimators': 50, 'criterion': 'log_loss', 'max_depth': 5, 'max_samples': 20}",,0.9513513513513513

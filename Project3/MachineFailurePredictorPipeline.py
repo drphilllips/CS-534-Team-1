@@ -35,7 +35,7 @@ def main():
     ml_train_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Parameters',
                                            'Its F1-score on the 5-fold Cross Validation on Training Data (70%)'])
 
-    # MLP Classifier
+    # ---MLP Classifier
     # layout parameter space
     parameters = {'solver': ['sgd', 'adam'],
                   'alpha': [0.001, 0.005, 0.007, 0.01, 0.03, 0.1, 0.3, 1.0],
@@ -61,10 +61,9 @@ def main():
               'Its Best Set of Parameters': str({'hidden layer sizes': params_mlp['hidden_layer_sizes'],
                                                  'activation': params_mlp['activation']}),
               'Its F1-score on the 5-fold Cross Validation on Training Data (70%)': f1_mlp}
-
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(ai_row, index=[0])], ignore_index=True)
 
-    # SV Classifier
+    # ---SV Classifier
     parameters = {'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
                   'C': [0.001, 0.01, 0.1, 1, 5, 10]}
     svc = SVC()
@@ -83,10 +82,9 @@ def main():
                'Its Best Set of Parameters': str({'C': params_svc['C'],
                                                   'kernel': params_svc['kernel']}),
                'Its F1-score on the 5-fold Cross Validation on Training Data (70%)': f1_svc}
-
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(svc_row, index=[0])], ignore_index=True)
 
-    # Bagging Classifier
+    # ---Bagging Classifier
     parameters = {'estimator': [None], 'n_estimators': [17, 18, 19, 20], 'random_state': [0, 1, 2, 3],
                   'max_samples': [100, 150, 200], 'max_features': [1, 3, 5]}
     clf = BaggingClassifier()
@@ -106,10 +104,9 @@ def main():
                    {'n_estimators': params_bag['n_estimators'], 'max_samples': params_bag['max_samples'],
                     'max_features': params_bag['max_features']}),
                'Its F1-score on the 5-fold Cross Validation on Training Data (70%)': f1_bag}
-
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(bag_row, index=[0])], ignore_index=True)
 
-    # Adaboost Classifier
+    # ---Adaboost Classifier
     parameters = {
         'n_estimators': [1, 5, 10, 25, 50, 100],
         'learning_rate': [0.01, 0.1, 1.0, 5.0, 10.0]
@@ -130,10 +127,9 @@ def main():
                  'Its Best Set of Parameters': str({'n_estimators': params_ada['n_estimators'],
                                                     'learning_rate': params_ada['learning_rate']}),
                  'Its F1-score on the 5-fold Cross Validation on Training Data (70%)': f1_boost}
-
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(boost_row, index=[0])], ignore_index=True)
 
-    # Random Forest Classifier
+    # ---Random Forest Classifier
     parameters = {
         'n_estimators': [10, 25, 50, 100],
         'criterion': ['gini', 'entropy', 'log_loss'],
@@ -160,19 +156,23 @@ def main():
                                                  'max_depth': params_rfc['max_depth'],
                                                  'max_samples': params_rfc['max_samples']}),
               'Its F1-score on the 5-fold Cross Validation on Training Data (70%)': f1_rf}
-
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(rf_row, index=[0])], ignore_index=True)
 
+    # Split data into train and test
+    X_train, X_test, y_train, y_test = train_test_split(X_over, np.ravel(y_over), test_size=0.3, random_state=42)
+
+    # Display ML train table
     ml_train_table = ml_train_table.reset_index(drop=True)
     print(ml_train_table)
+
+    # Convert ML train table to csv
     ml_train_table.to_csv('ml_train_table.csv', index=False)
 
+    # Create the ML test table to display hyperparameters and performance
     ml_test_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Parameters',
                                           'Its F1-score on the 5-fold Cross Validation on Training Data (70%)'])
 
-    X_train, X_test, y_train, y_test = train_test_split(X_over, np.ravel(y_over), test_size=0.3, random_state=42)
-
-    # MLP Classifier
+    # ---MLP Classifier
     mlp = MLPClassifier(solver='adam', activation='tanh', max_iter=5000)
     mlp.fit(X_test, y_test)
     y_pred = grid.predict(X_test)
@@ -182,14 +182,13 @@ def main():
     f1_mlp = f1_score(y_test, y_pred)
     print("F1 Score:", f1_mlp, '\n')
 
-    # Create row and concatenate it to the ml train table
+    # Create row and concatenate it to the ml test table
     ai_row = {'ML Trained Model': 'Artificial Neural Networks',
               'Its Best Set of Parameters': str({'hidden layer sizes': (200, 2), 'activation': 'tanh'}),
               'Its F1-score on the 5-fold Cross Validation on Training Data (30%)': f1_mlp}
-
     ml_test_table = pd.concat([ml_test_table, pd.DataFrame(ai_row, index=[0])], ignore_index=True)
 
-    # SV Classifier
+    # ---SV Classifier
     clf = BaggingClassifier(estimator=None, n_estimators=10, random_state=0)
     clf.fit(X_test, y_test)
     svc = SVC(C=0.1, kernel='linear')
@@ -205,10 +204,9 @@ def main():
     svc_row = {'ML Trained Model': 'Super Vector Machine',
                'Its Best Set of Parameters': str({'C': 0.1, 'kernel': 'linear'}),
                'Its F1-score on the 5-fold Cross Validation on Training Data (30%)': f1_svc}
-
     ml_test_table = pd.concat([ml_test_table, pd.DataFrame(svc_row, index=[0])], ignore_index=True)
 
-    # Bagging Classifier
+    # ---Bagging Classifier
     clf = BaggingClassifier(estimator=None, n_estimators=20, max_samples=20, max_features=5, random_state=0)
     clf.fit(X_test, y_test)
     y_pred = clf.predict(X_test)
@@ -222,10 +220,9 @@ def main():
     bag_row = {'ML Trained Model': 'BaggingClassifier',
                'Its Best Set of Parameters': str({'n_estimators': 20, 'max_samples': 200, 'max_features': 5}),
                'Its F1-score on the 5-fold Cross Validation on Training Data (30%)': f1_bag}
-
     ml_test_table = pd.concat([ml_test_table, pd.DataFrame(bag_row, index=[0])], ignore_index=True)
 
-    # Adaboost Classifier
+    # ---Adaboost Classifier
     clf = AdaBoostClassifier(n_estimators=100, random_state=0)
     clf.fit(X_test, y_test)
     y_pred = clf.predict(X_test)
@@ -239,10 +236,9 @@ def main():
     boost_row = {'ML Trained Model': 'AdaBoost',
                  'Its Best Set of Parameters': str({'n_estimators': 25, 'learning_rate': 0.1}),
                  'Its F1-score on the 5-fold Cross Validation on Training Data (30%)': f1_boost}
-
     ml_test_table = pd.concat([ml_test_table, pd.DataFrame(boost_row, index=[0])], ignore_index=True)
 
-    # Random Forest Classifier
+    # ---Random Forest Classifier
     clf = RandomForestClassifier(n_estimators=50, criterion='log_loss', max_features=1, max_depth=5, max_samples=20, random_state=0)
     clf.fit(X_test, y_test)
     y_pred = clf.predict(X_test)
@@ -257,11 +253,13 @@ def main():
               'Its Best Set of Parameters': str(
                   {'n_estimators': 50, 'criterion': 'log_loss', 'max_depth': 5, 'max_samples': 20}),
               'Its F1-score on the 5-fold Cross Validation on Training Data (30%)': f1_rf}
-
     ml_test_table = pd.concat([ml_test_table, pd.DataFrame(rf_row, index=[0])], ignore_index=True)
 
+    # Display test table
     ml_test_table = ml_test_table.reset_index(drop=True)
     print(ml_test_table)
+
+    # Send test table to csv
     ml_test_table.to_csv('ml_test_table.csv', index=False)
 
 
