@@ -190,8 +190,6 @@ def main():
     ml_test_table = pd.concat([ml_test_table, pd.DataFrame(ai_row, index=[0])], ignore_index=True)
 
     # SV Classifier
-    clf = BaggingClassifier(estimator=None, n_estimators=10, random_state=0)
-    clf.fit(X_test, y_test)
     svc = SVC(C=0.1, kernel='linear')
     svc.fit(X_test, y_test)
     y_pred = svc.predict(X_test)
@@ -263,6 +261,9 @@ def main():
     ml_test_table = ml_test_table.reset_index(drop=True)
     print(ml_test_table)
     ml_test_table.to_csv('ml_test_table.csv', index=False)
+
+    print("\n")
+    print("Adaboost Classifier will be used to predict future machine failure!")
 
 
 if __name__ == "__main__":
