@@ -87,9 +87,13 @@ def main():
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(svc_row, index=[0])], ignore_index=True)
 
     # Bagging Classifier
-    clf = BaggingClassifier(estimator=None, n_estimators=10, random_state=0)
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
+    parameters = {'estimator': [None], 'n_estimators': [17, 18, 19, 20], 'random_state': [0, 1, 2, 3],
+                  'max_samples': [100, 150, 200], 'max_features': [1, 3, 5]}
+    clf = BaggingClassifier()
+    grid = GridSearchCV(clf, parameters, cv=5)
+    grid.fit(X_train, y_train)
+    y_pred = grid.predict(X_test)
+    params_bag = grid.best_params_
     print("Bagging Classifier")
     accuracy = accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
@@ -98,7 +102,9 @@ def main():
 
     # Create row and concatenate it to the ml train table
     bag_row = {'ML Trained Model': 'BaggingClassifier',
-               'Its Best Set of Parameters': str({'n_estimators': 5, 'max_samples': 4, 'max_features': 5}),
+               'Its Best Set of Parameters': str(
+                   {'n_estimators': params_bag['n_estimators'], 'max_samples': params_bag['max_samples'],
+                    'max_features': params_bag['max_features']}),
                'Its F1-score on the 5-fold Cross Validation on Training Data (70%)': f1_bag}
 
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(bag_row, index=[0])], ignore_index=True)
