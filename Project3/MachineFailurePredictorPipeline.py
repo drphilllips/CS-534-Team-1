@@ -30,23 +30,25 @@ def main():
     # Step 4: Train-Test Split and 5-Fold Cross-Validation
     # ---
     # train-test split
+    X_train, X_test, y_train, y_test = train_test_split(X_over, np.ravel(y_over), test_size=0.3, random_state=42)
 
     # Create the machine learning training table
     ml_train_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Parameters',
                                            'Its F1-score on the 5-fold Cross Validation on Training Data (70%)'])
 
-    X_train, X_test, y_train, y_test = train_test_split(X_over, np.ravel(y_over), test_size=0.3, random_state=42)
-
     # MLP Classifier
+    # layout parameter space
     parameters = {'solver': ['sgd', 'adam'],
-                  'alpha': [0.0001, 0.001, 0.01, 0.1, 0.3, 1.0],
+                  'alpha': [0.001, 0.005, 0.007, 0.01, 0.03, 0.1, 0.3, 1.0],
                   'hidden_layer_sizes': [(5, 2), (10, 2), (20, 2), (50, 2), (100, 2), (200, 2)],
                   'learning_rate': ['constant', 'adaptive'],
                   'activation': ['tanh', 'relu'],
                   'early_stopping': [True]}
-    mlp = MLPClassifier(max_iter=500)
+    mlp = MLPClassifier(max_iter=200)
+    # Grid Search to learn best parameters with 5-fold validation
     grid = GridSearchCV(mlp, parameters, cv=5)
     grid.fit(X_train, y_train)
+    # Generate scores from best parameters
     y_pred = grid.predict(X_test)
     print(grid.best_params_)
     print("MLP Classifier")
@@ -54,10 +56,12 @@ def main():
     print("Accuracy:", accuracy)
     f1_mlp = f1_score(y_test, y_pred)
     print("F1 Score:", f1_mlp, '\n')
+    params_mlp = grid.best_params_
 
     # Create row and concatenate it to the ml train table
     ai_row = {'ML Trained Model': 'Artificial Neural Networks',
-              'Its Best Set of Parameters': str({'hidden layer sizes': (5, 2), 'activation': 1e-5}),
+              'Its Best Set of Parameters': str({'hidden layer sizes': params_mlp['hidden_layer_sizes'],
+                                                 'activation': params_mlp['activation']}),
               'Its F1-score on the 5-fold Cross Validation on Training Data (70%)': f1_mlp}
 
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(ai_row, index=[0])], ignore_index=True)
