@@ -1,9 +1,45 @@
-ml_train_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Parameters',
+import pandas as pd
+import numpy as np
+from imblearn.under_sampling import RandomUnderSampler
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier
+
+
+
+def main():
+    # ------
+    # Step 3: Load Data and Randomly Under-Sample the Majority
+    # ---
+    df = pd.read_csv('ai4i2020.csv')
+    # get X and y columns
+    X = df[['Air temperature [K]', 'Process temperature [K]',
+            'Rotational speed [rpm]', 'Torque [Nm]',
+            'Tool wear [min]', 'TWF', 'HDF', 'PWF', 'OSF', 'RNF']]  # All data except label
+    y = df[['Machine failure']]  # labels Fail/Normal
+    # RandomUnderSample data to get 339 failures and 339 non-failures
+    undersample = RandomUnderSampler(sampling_strategy='majority')
+    X_over, y_over = undersample.fit_resample(X, y)
+    # ------
+    # Step 4: Train-Test Split and 5-Fold Cross-Validation
+    # ---
+    # train-test split
+
+    # Create the machine learning training table
+    ml_train_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Parameters',
                                            'Its F1-score on the 5-fold Cross Validation on Training Data (70%)'])
 
     X_train, X_test, y_train, y_test = train_test_split(X_over, np.ravel(y_over), test_size=0.3, random_state=42)
 
     # MLP Classifier
+    #clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
+    #clf.fit(X_train, y_train)
+    #y_pred = clf.predict(X_test)
     parameters = {'solver': ['lbfgs', 'sgd', 'adam'],
                   'alpha': [0.00001, 0.00005],
                   'hidden_layer_sizes': [(10, 2), (20, 2)],
@@ -15,6 +51,7 @@ ml_train_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Para
     grid = GridSearchCV(mlp, parameters, cv=5)
     grid.fit(X_train, y_train)
     y_pred = grid.predict(X_test)
+    print(grid.get_params())
     print("MLP Classifier")
     accuracy = accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
@@ -29,11 +66,15 @@ ml_train_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Para
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(ai_row, index=[0])], ignore_index=True)
 
     # SV Classifier
+    #svclassifier = SVC(kernel='linear')
+    #svclassifier.fit(X_train, y_train)
+    #y_pred = svclassifier.predict(X_test)
     parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 5, 10, 20]}
     svc = SVC()
     grid = GridSearchCV(svc, parameters, cv=5)
     grid.fit(X_train, y_train)
     y_pred = grid.predict(X_test)
+    print(grid.get_params())
     print("SV Classifier")
     accuracy = accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
@@ -93,8 +134,7 @@ ml_train_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Para
 
     # Create row and concatenate it to the ml train table
     rf_row = {'ML Trained Model': 'Random Forest',
-              'Its Best Set of Parameters': str(
-                  {'n_estimators': 100, 'criterion': 10, 'max_depth': 10, 'max_samples': 100}),
+              'Its Best Set of Parameters': str({'n_estimators': 100, 'criterion': 10, 'max_depth': 10, 'max_samples': 100}),
               'Its F1-score on the 5-fold Cross Validation on Training Data (70%)': f1_rf}
 
     ml_train_table = pd.concat([ml_train_table, pd.DataFrame(rf_row, index=[0])], ignore_index=True)
@@ -102,3 +142,7 @@ ml_train_table = pd.DataFrame(columns=['ML Trained Model', 'Its Best Set of Para
     ml_train_table = ml_train_table.reset_index(drop=True)
     print(ml_train_table)
     ml_train_table.to_csv('ml_train_table.csv', index=False)
+
+
+if __name__ == "__main__":
+    main()
