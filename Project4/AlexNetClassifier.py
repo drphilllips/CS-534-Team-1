@@ -28,6 +28,28 @@ def main():
     print('Melanoma photos size: ',len(melanoma_train_photos))
     print('Naevus photos size: ',len(naevus_train_photos))
 
+    # Compile train photos into 100x3x256x256 tensor, no labels
+    train_photos = []
+    for m in melanoma_train_photos:
+        train_photos.append(train_data[m][0])
+    for n in naevus_train_photos:
+        train_photos.append(train_data[n][0])
+    train_tensor = torch.stack(train_photos)
+    print(train_tensor)
+    print(len(train_tensor))
+
+    # run alexnet on train tensor with a range of dropouts
+    # ! need to do 5-Fold to find best droupout number
+    dropouts = [i/100 for i in range(0, 100, 1)]
+    for d in dropouts:
+        alexnet_model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', num_classes=2, dropout=d)
+        with torch.no_grad():
+            output = alexnet_model(train_tensor)  # non-normalized scores
+            probabilities = torch.nn.functional.softmax(output, dim=0)
+            print(len(output))
+            print(probabilities[0])
+        break  # remove once 5-fold is implemented
+
 
 if __name__ == "__main__":
     main()
