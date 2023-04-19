@@ -15,7 +15,7 @@ def main():
     train_data = ImageFolder('complete_mednode_dataset', transform=transformation)
     print(train_data)
 
-    train_size = int(0.8 * len(train_data))
+    train_size = int(0.77 * len(train_data))
     val_size = len(train_data) - train_size
     train_data, val_data = torch.utils.data.random_split(train_data, [train_size, val_size])
 
@@ -25,8 +25,14 @@ def main():
     melanoma_train_photos = random.sample(melanoma_db, 50)
     naevus_train_photos = random.sample(naevus_db, 50)
 
-    print('Melanoma photos size: ',len(melanoma_train_photos))
-    print('Naevus photos size: ',len(naevus_train_photos))
+    melanoma_test_photos = random.sample([i for i in train_data if i not in melanoma_train_photos], 20)
+    naevus_test_photos = random.sample([i for i in train_data if i not in naevus_train_photos], 20)
+
+    print('Melanoma photos size: ', len(melanoma_train_photos))
+    print('Naevus photos size: ', len(naevus_train_photos))
+
+    print('Melanoma test photos size: ', len(melanoma_test_photos))
+    print('Naevus test photos size: ', len(naevus_test_photos))
 
     # Compile train photos into 100x3x256x256 tensor, no labels
     train_photos = []
@@ -39,7 +45,7 @@ def main():
     print(len(train_tensor))
 
     # run alexnet on train tensor with a range of dropouts
-    # ! need to do 5-Fold to find best droupout number
+    # ! need to do 5-Fold to find the best dropout number
     dropouts = [i/100 for i in range(0, 100, 1)]
     for d in dropouts:
         alexnet_model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', num_classes=2, dropout=d)
