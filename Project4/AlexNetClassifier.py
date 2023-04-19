@@ -25,8 +25,8 @@ def main():
     melanoma_train_photos = random.sample(melanoma_db, 50)
     naevus_train_photos = random.sample(naevus_db, 50)
 
-    print(len(melanoma_train_photos))
-    print(len(naevus_train_photos))
+    print('Melanoma photos size: ',len(melanoma_train_photos))
+    print('Naevus photos size: ',len(naevus_train_photos))
 
 
 if __name__ == "__main__":
