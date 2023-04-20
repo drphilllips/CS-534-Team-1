@@ -191,6 +191,7 @@ def main():
     # ---SV Classifier
     clf = BaggingClassifier(estimator=None, n_estimators=10, random_state=0)
     clf.fit(X_test, y_test)
+    # SV Classifier
     svc = SVC(C=0.1, kernel='linear')
     svc.fit(X_test, y_test)
     y_pred = svc.predict(X_test)
@@ -261,6 +262,9 @@ def main():
 
     # Send test table to csv
     ml_test_table.to_csv('ml_test_table.csv', index=False)
+
+    print("\n")
+    print("Adaboost Classifier will be used to predict future machine failure!")
 
 
 if __name__ == "__main__":
