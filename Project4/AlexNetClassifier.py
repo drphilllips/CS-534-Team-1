@@ -2,6 +2,10 @@ import random
 import torch
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
+from sklearn.model_selection import KFold
+import numpy as np
+import tensorflow as tf
+from alexnet_pytorch import AlexNet
 
 
 def main():
@@ -16,8 +20,8 @@ def main():
     print(train_data)
 
     train_size = int(0.77 * len(train_data))
-    val_size = len(train_data) - train_size
-    train_data, val_data = torch.utils.data.random_split(train_data, [train_size, val_size])
+    test_size = len(train_data) - train_size
+    train_data, test_data = torch.utils.data.random_split(train_data, [train_size, test_size])
 
     # Select 50 melanoma and 50 naevus images
     melanoma_db = [i for i in range(len(train_data)) if train_data[i][1] == 0]
@@ -36,25 +40,64 @@ def main():
 
     # Compile train photos into 100x3x256x256 tensor, no labels
     train_photos = []
+    train_labels = []
     for m in melanoma_train_photos:
         train_photos.append(train_data[m][0])
+        train_labels.append(1)
     for n in naevus_train_photos:
         train_photos.append(train_data[n][0])
-    train_tensor = torch.stack(train_photos)
+        train_labels.append(0)
+    train_tensor = np.array(torch.stack(train_photos))
+    train_labels = np.array(train_labels)
     print(train_tensor)
     print(len(train_tensor))
 
     # run alexnet on train tensor with a range of dropouts
-    # ! need to do 5-Fold to find the best dropout number
-    dropouts = [i/100 for i in range(0, 100, 1)]
-    for d in dropouts:
-        alexnet_model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', num_classes=2, dropout=d)
-        with torch.no_grad():
-            output = alexnet_model(train_tensor)  # non-normalized scores
-            probabilities = torch.nn.functional.softmax(output, dim=0)
-            print(len(output))
-            print(probabilities[0])
-        break  # remove once 5-fold is implemented
+    # TODO need to do 5-Fold to find the best dropout number
+
+    # Perform 5-fold cross-validation to find the best dropout rate
+    kfold = KFold(n_splits=5, shuffle=True)
+
+    dropout_rates = np.arange(0, 1.1, 0.1)
+    results=[]
+
+    for d in dropout_rates:
+        fold_accuracy = []
+        # For each fold split of train and validation data...
+        for train_idx, val_idx in kfold.split(train_tensor, train_labels):
+            train_idx = train_idx.astype(int)
+            val_idx = val_idx.astype(int)
+            # Store train and validation tesnors and labels
+            train_x, train_y = train_tensor[train_idx], train_labels[train_idx]
+            val_x, val_y = train_tensor[val_idx], train_labels[val_idx]
+
+            # model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', num_classes=2, dropout=d)
+
+            model = AlexNet(weights=None, include_top=True, input_shape=(224, 224, 3), classes=2)
+
+            model.compile(optimizer=tf.keras.optimizers.Adam(),
+                          loss='binary_crossentropy',
+                          metrics=['accuracy'])
+
+            model.fit(train_x, train_y, epochs=10, batch_size=32, verbose=0)
+
+            score = model.evaluate(val_x, val_y, verbose=0)
+            fold_accuracy.append(score[1])
+
+        results.append(np.mean(fold_accuracy))
+
+    best_dropout_rate = dropout_rates[np.argmax(results)]
+    best_accuracy = np.max(results)
+
+    print("Best dropout rate:", best_dropout_rate)
+    print("Best accuracy:", best_accuracy)
+
+# with torch.no_grad():
+#     output = model(train_tensor)  # non-normalized scores
+#     probabilities = torch.nn.functional.softmax(output, dim=0)
+#     print(len(output))
+#     print(probabilities[0])
+# break  # remove once 5-fold is implemented
 
 
 if __name__ == "__main__":
