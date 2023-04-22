@@ -71,6 +71,8 @@ def main():
             train_x, train_y = train_tensor[train_idx], train_labels[train_idx]
             val_x, val_y = train_tensor[val_idx], train_labels[val_idx]
 
+
+            # TODO: build the AlexNet model
             # model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', num_classes=2, dropout=d)
 
             model = AlexNet(weights=None, include_top=True, input_shape=(224, 224, 3), classes=2)
