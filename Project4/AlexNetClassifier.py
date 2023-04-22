@@ -4,8 +4,6 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from sklearn.model_selection import KFold
 import numpy as np
-import tensorflow as tf
-from alexnet_pytorch import AlexNet
 
 
 def main():
@@ -67,24 +65,32 @@ def main():
         for train_idx, val_idx in kfold.split(train_tensor, train_labels):
             train_idx = train_idx.astype(int)
             val_idx = val_idx.astype(int)
-            # Store train and validation tesnors and labels
+            # Store train and validation tensors and labels
             train_x, train_y = train_tensor[train_idx], train_labels[train_idx]
             val_x, val_y = train_tensor[val_idx], train_labels[val_idx]
 
 
             # TODO: build the AlexNet model
-            # model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', num_classes=2, dropout=d)
+            model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', num_classes=2, dropout=d)
+            model.eval()
 
-            model = AlexNet(weights=None, include_top=True, input_shape=(224, 224, 3), classes=2)
+            with torch.no_grad():
+                output = model(train_x)
+            print(output[0])
 
-            model.compile(optimizer=tf.keras.optimizers.Adam(),
-                          loss='binary_crossentropy',
-                          metrics=['accuracy'])
+            probabilities = torch.nn.functional.softmax(output[0], dim=0)
+            print(probabilities)
 
-            model.fit(train_x, train_y, epochs=10, batch_size=32, verbose=0)
+            # model = AlexNet(weights=None, include_top=True, input_shape=(224, 224, 3), classes=2)
+            #
+            # model.compile(optimizer=tf.keras.optimizers.Adam(),
+            #               loss='binary_crossentropy',
+            #               metrics=['accuracy'])
+            #
+            # model.fit(train_x, train_y, epochs=10, batch_size=32, verbose=0)
 
-            score = model.evaluate(val_x, val_y, verbose=0)
-            fold_accuracy.append(score[1])
+            # score = model.evaluate(val_x, val_y, verbose=0)
+            # fold_accuracy.append(score[1])
 
         results.append(np.mean(fold_accuracy))
 
