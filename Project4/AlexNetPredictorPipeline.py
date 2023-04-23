@@ -87,7 +87,7 @@ def main():
     # Perform 5-fold cross-validation to find the best dropout rate
     kfold = KFold(n_splits=5, shuffle=True)
 
-    dropout_rates = np.arange(0, 1.01, 0.01)
+    dropout_rates = np.arange(0, 1.1, 0.1)
     results = []
     best_dropout_rate = None
     best_accuracy = 0.0
@@ -149,18 +149,17 @@ def main():
     for n in naevus_test_photos:
         test_photos.append(n)
         test_labels.append(0)
-    test_tensor = np.array(torch.stack(test_photos))
-    test_labels = np.array(test_labels)
+    test_tensor = torch.stack(test_photos)
+    test_labels = torch.Tensor(np.array(test_labels))
 
-    test_model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet',
-                                num_classes=2, dropout=best_dropout_rate)
+    test_model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', num_classes=2, dropout=best_dropout_rate)
     test_model.eval()
     with torch.no_grad():
         test_output = test_model(test_tensor)
     test_probabilities = torch.nn.functional.softmax(test_output, dim=1)
     test_predictions = torch.argmax(test_probabilities, dim=1)
     test_accuracy = torch.sum(test_predictions == test_labels).item() / len(test_labels)
-    print("Test Accuracy: "+test_accuracy)
+    print("Test Accuracy: "+str(test_accuracy))
 
 
 if __name__ == "__main__":
