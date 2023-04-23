@@ -15,7 +15,7 @@ def main():
     ])
 
     train_data = ImageFolder('complete_mednode_dataset', transform=transformation)
-    print(train_data)
+    # print(train_data)
 
     train_size = int(0.77 * len(train_data))
     test_size = len(train_data) - train_size
@@ -57,9 +57,12 @@ def main():
     kfold = KFold(n_splits=5, shuffle=True)
 
     dropout_rates = np.arange(0, 1.1, 0.1)
-    results=[]
+    results = []
+    best_dropout_rate = None
+    best_accuracy = 0.0
 
     for d in dropout_rates:
+        print('Dropout rate: ', d)
         fold_accuracy = []
         # For each fold split of train and validation data...
         for train_idx, val_idx in kfold.split(train_tensor, train_labels):
@@ -69,6 +72,10 @@ def main():
             train_x, train_y = train_tensor[train_idx], train_labels[train_idx]
             val_x, val_y = train_tensor[val_idx], train_labels[val_idx]
 
+            train_x = torch.tensor(train_x)
+            train_y = torch.tensor(train_y)
+            val_x = torch.tensor(val_x)
+            val_y = torch.tensor(val_y)
 
             # TODO: build the AlexNet model
             model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', num_classes=2, dropout=d)
@@ -77,9 +84,6 @@ def main():
             with torch.no_grad():
                 output = model(train_x)
             print(output[0])
-
-            probabilities = torch.nn.functional.softmax(output[0], dim=0)
-            print(probabilities)
 
             # model = AlexNet(weights=None, include_top=True, input_shape=(224, 224, 3), classes=2)
             #
@@ -92,13 +96,18 @@ def main():
             # score = model.evaluate(val_x, val_y, verbose=0)
             # fold_accuracy.append(score[1])
 
-        results.append(np.mean(fold_accuracy))
+            probabilities = torch.nn.functional.softmax(output, dim=1)
+            predictions = torch.argmax(probabilities, dim=1)
+            accuracy = torch.sum(predictions == train_y).item() / len(train_y)
+            fold_accuracy.append(accuracy)
 
-    best_dropout_rate = dropout_rates[np.argmax(results)]
-    best_accuracy = np.max(results)
+            average_accuracy = np.mean(fold_accuracy)
+            if average_accuracy > best_accuracy:
+                best_dropout_rate = d
+                best_accuracy = average_accuracy
 
-    print("Best dropout rate:", best_dropout_rate)
-    print("Best accuracy:", best_accuracy)
+            print("Best dropout rate:", best_dropout_rate)
+            print("Best accuracy:", best_accuracy, '\n')
 
 # with torch.no_grad():
 #     output = model(train_tensor)  # non-normalized scores
